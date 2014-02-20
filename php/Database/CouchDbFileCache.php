@@ -12,6 +12,6 @@ require_once __DIR__.'/../libs/Sag/src/SagFileCache.php';
 
 use \SagMemoryCache;
 
-class CouchDbMemoryCache extends SagFileCache {
+class CouchDbFileCache extends SagFileCache {
 } // CouchDbFileCache
 
