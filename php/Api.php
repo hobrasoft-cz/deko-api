@@ -8,7 +8,7 @@
 namespace Hobrasoft\Deko;
 
 require_once __DIR__.'/Database/CouchDb.php';
-require_once __DIR__.'/Database/CouchDbMemoryCache.php';
+//require_once __DIR__.'/Database/CouchDbMemoryCache.php';
 
 require_once __DIR__.'/Document/Document.php';
 require_once __DIR__.'/Document/Company.php';
@@ -41,6 +41,10 @@ class Api {
 
 	const AUTH_COOKIE = 'AUTH_COOKIE';
 
+	const CACHE_MEMORY = 'SagMemoryCache';
+
+	const CACHE_FILE = 'SagFileCache';
+
 	const HTTP_CURL = 'HTTP_CURL';
 
 	const HTTP_NATIVE_SOCKETS = 'HTTP_NATIVE_SOCKETS';
@@ -55,6 +59,10 @@ class Api {
 
 	protected $authMethod = self::AUTH_BASIC;
 
+	protected $cacheType = self::CACHE_MEMORY;
+
+	protected $cacheDir = '/tmp';
+
 	protected $database = DEKO_API_DEFAULT_DATABASE_NAME;
 
 	protected $debug = FALSE;
@@ -63,7 +71,7 @@ class Api {
 
 	protected $host = DEKO_API_DEFAULT_HOST;
 
-	protected $httpAdapter = self::HTTP_CURL;
+	protected $httpAdapter = self::HTTP_NATIVE_SOCKETS;
 
 	protected $password = NULL;
 
@@ -117,7 +125,18 @@ class Api {
 
 			/** Cache setup */
 			if ($this->useCache == TRUE) {
-				$this->db->setCache(new Database\CouchDbMemoryCache);
+				switch ($this->cacheType) {
+
+				case self::CACHE_FILE:
+					$cache = new Database\CouchDbFileCache($this->cacheDir);
+					break;
+
+				default:
+				case self::CACHE_MEMORY:
+					$cache = new Database\CouchDBMemoryCache;
+					break;
+				} // switch
+				$this->db->setCache($cache);
 			} // if
 
 			/** Database name setup */
@@ -181,6 +200,11 @@ class Api {
 			'useSsl'         => $this->getUseSsl()
 		); // array()
 	} // getConfiguration()
+
+	public function getCacheType() {
+
+		return $this->cacheType;
+	} // getCacheType()
 
 	public function getDatabase() {
 
@@ -287,6 +311,14 @@ class Api {
 			$this->setAuthMethod($configuration['authMethod']);
 		} // if
 
+		if (isset($configuration['cacheType'])) {
+			$this->setCacheType($configuration['cacheType']);
+		} // if
+
+		if (isset($configuration['cacheDir'])) {
+			$this->setCacheDir($configuration['cacheDir']);
+		} // if
+
 		if (isset($configuration['database'])) {
 			$this->setDatabase($configuration['database']);
 		} // if
@@ -332,6 +364,38 @@ class Api {
 		} // if
 
 	} // setConfiguration()
+
+	public function setCacheType($cacheType) {
+
+		$validCacheTypes = array(
+			self::CACHE_FILE,
+			self::CACHE_MEMORY
+		); // array()
+
+		if (!in_array($cacheType, $validCacheTypes)) {
+			throw new Excpetions\ApiException("Cache type '{$cacheType}' is invalid.", 1019);
+		} // if
+
+		$this->cacheType = $cacheType;
+	} // setHttpAdapter()
+
+	public function setCacheDir($cacheDir) {
+
+		if (!is_string($cacheDir) || strlen($cacheDir) < 1) {
+			throw new Exceptions\ApiException("Cache name '{$database}' is invalid.", 1011);
+		} // if
+
+		if (!($path = realpath($cacheDir))) {
+			throw new Exceptions\ApiException("Cache directory '{$cacheDir}' doesn't exists.", 1011);
+		}  // if
+
+		if (!is_writeable($path)) {
+			$permissions = fileperms($cacheDir);
+			throw new Exceptions\ApiException(sprintf("Cache directory '%d' have insufficient perissions (%o) for write.", $path, $permissions));
+		} // if
+
+		$this->cacheDir = $path;
+	} // setDatabase()
 
 	public function setDatabase($database) {
 

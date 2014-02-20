@@ -49,7 +49,6 @@ abstract class Document implements \ArrayAccess {
 		$this->loadLinks();
 	} // __construct()
 
-
 	public function __destruct() {
 
 		unset($this->api);
@@ -93,49 +92,49 @@ abstract class Document implements \ArrayAccess {
 	public function loadCompanies() {
 
 		$this->companies = new Structure\Collection;
-		$this->loadDocuments($this->companies, $this->companiesLinks);
+		$this->loadDocuments($this->companiesLinks, $this->companies);
 	} // loadCompanies()
 
 	public function loadEvents() {
 
 		$this->events = new Structure\Collection;
-		$this->loadDocuments($this->events, $this->eventsLinks);
+		$this->loadDocuments($this->eventsLinks, $this->events);
 	} // loadEvents()
 
 	public function loadFiles() {
 
 		$this->files = new Structure\Collection;
-		$this->loadDocuments($this->files, $this->filesLinks);
+		$this->loadDocuments($this->filesLinks, $this->files);
 	} // loadFiles()
 
 	public function loadNotes() {
 
 		$this->notes = new Structure\Collection;
-		$this->loadDocuments($this->notes, $this->notesLinks);
+		$this->loadDocuments($this->notesLinks, $this->notes);
 	} // loadNotes()
 
 	public function loadPersons() {
 
 		$this->persons = new Structure\Collection;
-		$this->loadDocuments($this->persons, $this->personsLinks);
+		$this->loadDocuments($this->personsLinks, $this->persons);
 	} // loadPersons()
 
 	public function loadProjects() {
 
 		$this->projects = new Structure\Collection;
-		$this->loadDocuments($this->projects, $this->projectsLinks);
+		$this->loadDocuments($this->projectsLinks, $this->projects);
 	} // loadProjects()
 
 	public function loadTasks() {
 
 		$this->tasks = new Structure\Collection;
-		$this->loadDocuments($this->tasks, $this->tasksLinks);
+		$this->loadDocuments($this->tasksLinks, $this->tasks);
 	} // loadTasks()
 
 	public function loadTimesheets() {
 
 		$this->timesheets = new Structure\Collection;
-		$this->loadDocuments($this->timesheets, $this->timesheetsLinks);
+		$this->loadDocuments($this->timesheetsLinks, $this->timesheets);
 	} // loadTimesheets()
 
 
@@ -234,7 +233,7 @@ abstract class Document implements \ArrayAccess {
 
 	} // loadLinks()
 
-	protected function loadDocuments(Structure\Collection $collection, $links) {
+	protected function loadDocuments($links, Structure\Collection $collection) {
 
 		if (empty($links)) {
 
