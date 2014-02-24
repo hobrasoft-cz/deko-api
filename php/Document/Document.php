@@ -40,12 +40,17 @@ abstract class Document implements \ArrayAccess {
 
 	protected $api;
 
+	private $configuration;
+
 
 	public function __construct(\StdClass $data, Deko\Api $api) {
 
 		$this->data = (array) $data;
 		$this->api   = $api;
-
+/*
+dump($this->api->configuration);
+		$this->configuration = $this->api->getConfiguration();
+*/
 		$this->loadLinks();
 	} // __construct()
 
@@ -64,7 +69,13 @@ abstract class Document implements \ArrayAccess {
 
 		$this->data[$name] = $value;
 	} // __set()
+/*
+	public function __wakeup() {
 
+		$this->api->connect($this->configuration);
+		$this->api->login();
+	} // __wakeup()
+*/
 
 	public function offsetExists($offset) {
 

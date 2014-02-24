@@ -10,7 +10,7 @@ namespace Hobrasoft\Deko\Database;
 
 require_once __DIR__.'/../libs/Sag/src/SagFileCache.php';
 
-use \SagMemoryCache;
+use \SagFileCache;
 
 class CouchDbFileCache extends SagFileCache {
 } // CouchDbFileCache

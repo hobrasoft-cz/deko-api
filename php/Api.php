@@ -8,7 +8,6 @@
 namespace Hobrasoft\Deko;
 
 require_once __DIR__.'/Database/CouchDb.php';
-//require_once __DIR__.'/Database/CouchDbMemoryCache.php';
 
 require_once __DIR__.'/Document/Document.php';
 require_once __DIR__.'/Document/Company.php';
@@ -41,9 +40,9 @@ class Api {
 
 	const AUTH_COOKIE = 'AUTH_COOKIE';
 
-	const CACHE_MEMORY = 'SagMemoryCache';
+	const CACHE_MEMORY = 'CouchDbMemoryCache';
 
-	const CACHE_FILE = 'SagFileCache';
+	const CACHE_FILE = 'CouchDbFileCache';
 
 	const HTTP_CURL = 'HTTP_CURL';
 
@@ -188,6 +187,8 @@ class Api {
 
 		return array(
 			'authMethod'     => $this->getAuthMethod(),
+			'cacheType'      => $this->getCacheType(),
+			'cacheDir'       => $this->getCacheDir(),
 			'host'           => $this->getHost(),
 			'database'       => $this->getDatabase(),
 			'httpAdapter'    => $this->getHttpAdapter(),
@@ -373,7 +374,7 @@ class Api {
 		); // array()
 
 		if (!in_array($cacheType, $validCacheTypes)) {
-			throw new Excpetions\ApiException("Cache type '{$cacheType}' is invalid.", 1019);
+			throw new Exceptions\ApiException("Cache type '{$cacheType}' is invalid.", 1019);
 		} // if
 
 		$this->cacheType = $cacheType;
