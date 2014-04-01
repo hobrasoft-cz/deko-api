@@ -14,4 +14,3 @@ use \SagFileCache;
 
 class CouchDbFileCache extends SagFileCache {
 } // CouchDbFileCache
-

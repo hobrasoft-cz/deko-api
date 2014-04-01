@@ -9,14 +9,15 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Event document class
+ */
 class Event extends Document {
 
-	public $persons;
-
-	public $personsLinks;
-
-	public $projects;
-
-	public $projectsLinks;
+	public
+		$persons,
+		$personsLinks,
+		$projects,
+		$projectsLinks;
 
 } // Event

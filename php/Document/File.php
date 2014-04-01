@@ -9,10 +9,13 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * File document class.
+ */
 class File extends Document {
 
-	public $projects;
-
-	public $projectsLinks;
+	public
+		$projects,
+		$projectsLinks;
 
 } // File

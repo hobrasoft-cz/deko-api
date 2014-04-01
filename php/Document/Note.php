@@ -9,18 +9,17 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Note document class.
+ */
 class Note extends Document {
 
-	public $companies;
-
-	public $companiesLinks;
-
-	public $persons;
-
-	public $personsLinks;
-
-	public $projects;
-
-	public $projectsLinks;
+	public
+		$companies,
+		$companiesLinks,
+		$persons,
+		$personsLinks,
+		$projects,
+		$projectsLinks;
 
 } // Note

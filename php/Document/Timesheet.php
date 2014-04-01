@@ -9,18 +9,17 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Timesheet document class
+ */
 class Timesheet extends Document {
 
-	public $persons;
-
-	public $personsLinks;
-
-	public $projects;
-
-	public $projectsLinks;
-
-	public $tasks;
-
-	public $tasksLinks;
+	public
+		$persons,
+		$personsLinks,
+		$projects,
+		$projectsLinks,
+		$tasks,
+		$tasksLinks;
 
 } // Timesheet

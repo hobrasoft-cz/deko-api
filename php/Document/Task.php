@@ -9,22 +9,19 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Task document class.
+ */
 class Task extends Document {
 
-	public $events;
-
-	public $eventsLinks;
-
-	public $persons;
-
-	public $personsLinks;
-
-	public $projects;
-
-	public $projectsLinks;
-
-	public $timesheets;
-
-	public $timesheetsLinks;
+	public
+		$events,
+		$eventsLinks,
+		$persons,
+		$personsLinks,
+		$projects,
+		$projectsLinks,
+		$timesheets,
+		$timesheetsLinks;
 
 } // Task

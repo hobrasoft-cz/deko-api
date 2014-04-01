@@ -7,8 +7,10 @@
  */
 namespace Hobrasoft\Deko;
 
+/* Include database library */
 require_once __DIR__.'/Database/CouchDb.php';
 
+/* Include document types definitions */
 require_once __DIR__.'/Document/Document.php';
 require_once __DIR__.'/Document/Company.php';
 require_once __DIR__.'/Document/Event.php';
@@ -20,9 +22,11 @@ require_once __DIR__.'/Document/Task.php';
 require_once __DIR__.'/Document/Timesheet.php';
 require_once __DIR__.'/Document/Zone.php';
 
+/* Include structure definitions */
 require_once __DIR__.'/Structure/Collection.php';
 require_once __DIR__.'/Structure/Tree.php';
 
+/* Include exceptions defintions */
 require_once __DIR__.'/Exceptions/ApiException.php';
 
 use Hobrasoft\Deko\Database,
@@ -30,62 +34,64 @@ use Hobrasoft\Deko\Database,
     Hobrasoft\Deko\Exceptions,
     Hobrasoft\Deko\Structure;
 
+/** Default database host */
 define('DEKO_API_DEFAULT_HOST', '127.0.0.1');
+/** Default database port */
 define('DEKO_API_DEFAULT_PORT', '5984');
+/** Default database name */
 define('DEKO_API_DEFAULT_DATABASE_NAME', 'deko');
 
+/**
+ * Class implements Deko API operations
+ */
 class Api {
 
-	const AUTH_BASIC = 'AUTH_BASIC';
+	const
+		/** Basic authentication method */
+		AUTH_BASIC = 'AUTH_BASIC',
+		/** Cookie authentication method */
+		AUTH_COOKIE = 'AUTH_COOKIE',
+		/** Memory caching mechanism */
+		CACHE_MEMORY = 'CouchDbMemoryCache',
+		/** File caching mechanism */
+		CACHE_FILE = 'CouchDbFileCache',
+		/** CURL HTTP adapter */
+		HTTP_CURL = 'HTTP_CURL',
+		/** Native HTTP adapter */
+		HTTP_NATIVE_SOCKETS = 'HTTP_NATIVE_SOCKETS',
+		/** HTTP schema */
+		SCHEMA_HTTP = 'http:',
+		/** HTTPS schema */
+		SCHEMA_HTTPS = 'https:',
+		/** Database view default URL path */
+		URL_VIEWS = '/_design/lists/_view/';
 
-	const AUTH_COOKIE = 'AUTH_COOKIE';
+	public
+		$db = NULL;
 
-	const CACHE_MEMORY = 'CouchDbMemoryCache';
+	protected
+		$authMethod = self::AUTH_BASIC,
+		$cacheType = self::CACHE_MEMORY,
+		$cacheDir = '/tmp',
+		$database = DEKO_API_DEFAULT_DATABASE_NAME,
+		$debug = FALSE,
+		$debugInfo = array(),
+		$host = DEKO_API_DEFAULT_HOST,
+		$httpAdapter = self::HTTP_NATIVE_SOCKETS,
+		$password = NULL,
+		$port = DEKO_API_DEFAULT_PORT,
+		$schema = self::SCHEMA_HTTP,
+		$sslCertificate = NULL,
+		$useCache = TRUE,
+		$user = NULL,
+		$useSsl = FALSE;
 
-	const CACHE_FILE = 'CouchDbFileCache';
-
-	const HTTP_CURL = 'HTTP_CURL';
-
-	const HTTP_NATIVE_SOCKETS = 'HTTP_NATIVE_SOCKETS';
-
-	const SCHEMA_HTTP = 'http:';
-
-	const SCHEMA_HTTPS = 'https:';
-
-	const URL_VIEWS = '/_design/lists/_view/';
-
-	public $db = NULL;
-
-	protected $authMethod = self::AUTH_BASIC;
-
-	protected $cacheType = self::CACHE_MEMORY;
-
-	protected $cacheDir = '/tmp';
-
-	protected $database = DEKO_API_DEFAULT_DATABASE_NAME;
-
-	protected $debug = FALSE;
-
-	protected $debugInfo = array();
-
-	protected $host = DEKO_API_DEFAULT_HOST;
-
-	protected $httpAdapter = self::HTTP_NATIVE_SOCKETS;
-
-	protected $password = NULL;
-
-	protected $port = DEKO_API_DEFAULT_PORT;
-
-	protected $schema = self::SCHEMA_HTTP;
-
-	protected $sslCertificate = NULL;
-
-	protected $useCache = TRUE;
-
-	protected $user = NULL;
-
-	protected $useSsl = FALSE;
-
+	/**
+	 * Create API instance. Optionaly configuration (in array) can be specified.
+	 *
+	 * @public
+	 * @param array $configuration Connection configuration
+	 */
 	public function __construct(array $configuration = array()) {
 
 		if (!empty($configuration)) {
@@ -93,11 +99,23 @@ class Api {
 		} // if
 	} // __construct()
 
+	/**
+	 * Destroy API instance.
+	 *
+	 * @public
+	 */
 	public function __destruct() {
 
 		$this->disconnect();
 	} // __destruct()
 
+	/**
+	 * Connect to database. Optionaly configuration (in array) can be specified.
+	 *
+	 * @public
+	 * @param array $configuration Connection configuration
+	 * @throw ApiException Connection error
+	 */
 	public function connect(array $configuration = array()) {
 
 		/** Configuration setup */
@@ -146,11 +164,25 @@ class Api {
 		} // try
 	} // connect()
 
+	/**
+	 * Disconnect from database.
+	 * 
+	 * @public
+	 */
 	public function disconnect() {
 
 		unset($this->db);
 	} // disconnect()
 
+	/**
+	 * Returns document by its id and optionaly its revision.
+	 *
+	 * @public
+	 * @param string $documentId Document id
+	 * @param string $documentRevision Revision revision id
+	 * @throw ApiException when document not found, or other processing error
+	 * @return object Document object
+	 */
 	public function get($documentId, $documentRevision = NULL) {
 
 		$this->addDebugInfo("get({$documentId}, {$documentRevision})");
@@ -178,11 +210,23 @@ class Api {
 	} // get()
 
 
+	/**
+	 * Returns database authentication method.
+	 *
+	 * @public
+	 * @return string Authentication method code
+	 */
 	public function getAuthMethod() {
 
 		return $this->authMethod;
 	} // getAuthMethod()
 
+	/**
+	 * Returns API configuration as array.
+	 * 
+	 * @public
+	 * @return array Array with API configuration
+	 */
 	public function getConfiguration() {
 
 		return array(
@@ -202,71 +246,158 @@ class Api {
 		); // array()
 	} // getConfiguration()
 
+	/**
+	 * Returns used cache type.
+	 *
+	 * @public
+	 * @return string Cache type
+	 */
 	public function getCacheType() {
 
 		return $this->cacheType;
 	} // getCacheType()
 
+	/**
+	 * Returns database name.
+	 *
+	 * @public
+	 * @return string Database name
+	 */
 	public function getDatabase() {
 
 		return $this->database;
 	} // getDatabase()
 
+	/**
+	 * Returns debugging mode
+	 *
+	 * @public
+	 * @return bool Debugging mode
+	 */
 	public function getDebug() {
 
 		return $this->debug;
 	} // getDebug()
 
+	/**
+	 * Returns debugging information as array.
+	 *
+	 * @public
+	 * @return array Debugging informations
+	 */
 	public function getDebugInfo() {
 
 		return $this->debugInfo;
 	} // getDebugInfo()
 
+	/**
+	 * Returns database connection host name
+	 *
+	 * @public
+	 * @return string Database host name
+	 */
 	public function getHost() {
 
 		return $this->host;
 	} // getHost()
 
+	/**
+	 * Returns database connection HTTP adapter name
+	 *
+	 * @public
+	 * @return string HTTP adapter name
+	 */
 	public function getHttpAdapter() {
 
 		return $this->httpAdapter;
 	} // getHttpAdapter()
 
+	/**
+	 * Returns database connection password.
+	 *
+	 * @public
+	 * @return string Database password
+	 */
 	public function getPassword() {
 
 		return $this->password;
 	} // getPassword()
 
+	/**
+	 * Returns Database connection port number
+	 *
+	 * @public
+	 * @return integer Database port number
+	 */
 	public function getPort() {
 
 		return $this->port;
 	} // getPort()
 
+	/**
+	 * Returns used schema for database connection
+	 *
+	 * @public
+	 * @return string Used HTTP schema
+	 */
 	public function getSchema() {
 
 		return $this->schema;
 	} // if
 
+	/**
+	 * Returns SSL certificate file name used by database connection.
+	 *
+	 * @public
+	 * @return string SSL certificate file name
+	 */
 	public function getSslCertificate() {
 
 		return $this->sslCertificate;
 	} // getSslCertificate()
 
+	/**
+	 * Returns caching mode.
+	 *
+	 * @public
+	 * @return bool Caching mode
+	 */
 	public function getUseCache() {
 
 		return $this->useCache;
 	} // getUseCache()
 
+	/**
+	 * Returns database connection user name.
+	 *
+	 * @public
+	 * @return string Database user name
+	 */
 	public function getUser() {
 
 		return $this->user;
 	} // getUser()
 
+	/**
+	 * Returns database connection SSL mode
+	 *
+	 * @public
+	 * @return bool Database SSL mode
+	 */
 	public function getUseSsl() {
 
 		return $this->useSsl;
 	} // getUseSsl()
 
+	/**
+	 * Login into database with user name, password and authentication method.
+	 *
+	 * @public
+	 * @param string $user User name
+	 * @param string $password Password
+	 * @param string $authMethod Authentication method
+	 * @throw ApiException on authentication error
+	 */
 	public function login($user = NULL, $password = NULL, $authMethod = NULL) {
 
 		if (!empty($user)) {
@@ -292,6 +423,13 @@ class Api {
 
 	} // login()
 
+	/**
+	 * Set authentication method. Use one of Api::AUTH_* constants.
+	 *
+	 * @public
+	 * @param string $authMethod Authentication method
+	 * @throw ApiException on invalid authentication method
+	 */
 	public function setAuthMethod($authMethod) {
 
 		$validAuthMethods = array(
@@ -306,6 +444,13 @@ class Api {
 		$this->authMethod = $authMethod;
 	} // setAuthMethod()
 
+	/**
+	 * Set API configuration as array.
+	 *
+	 * @public
+	 * @param array $configuration API configuration
+	 * @throw ApiException on invalid settings
+	 */
 	public function setConfiguration(array $configuration) {
 
 		if (isset($configuration['authMethod'])) {
@@ -366,6 +511,13 @@ class Api {
 
 	} // setConfiguration()
 
+	/**
+	 * Set cache type. Use one of Api::CACHE_* constants.
+	 *
+	 * @public
+	 * @param string $cacheType Cache type
+	 * @throw ApiException on invalid cache type error
+	 */
 	public function setCacheType($cacheType) {
 
 		$validCacheTypes = array(
@@ -380,6 +532,13 @@ class Api {
 		$this->cacheType = $cacheType;
 	} // setHttpAdapter()
 
+	/**
+	 * Set cache directory. Use if CACHE_FILE type is set.
+	 * Cache directory must be writable.
+	 *
+	 * @param string $cacheDir Cache directory
+	 * @throw ApiException if directory doesn't exists or is not writable
+	 */
 	public function setCacheDir($cacheDir) {
 
 		if (!is_string($cacheDir) || strlen($cacheDir) < 1) {
@@ -398,6 +557,13 @@ class Api {
 		$this->cacheDir = $path;
 	} // setDatabase()
 
+	/**
+	 * Set database name.
+	 *
+	 * @public
+	 * @param string $database Database name
+	 * @throw ApiException on database name is invalid
+	 */
 	public function setDatabase($database) {
 
 		if (!is_string($database) || strlen($database) < 1) {
@@ -407,11 +573,23 @@ class Api {
 		$this->database = $database;
 	} // setDatabase()
 
+	/**
+	 * Set API debug mode.
+	 *
+	 * @param bool $debug Debug mode flag
+	 */
 	public function setDebug($debug) {
 
 		$this->debug = (bool) $debug;
 	} // setDebug()
 
+	/**
+	 * Set database host name.
+	 *
+	 * @public
+	 * @param string $host Host name
+	 * @throw ApiException on host name is invalid
+	 */
 	public function setHost($host) {
 
 		if (!is_string($host) || strlen($host) < 1) {
@@ -421,6 +599,13 @@ class Api {
 		$this->host = $host;
 	} // setHost()
 
+	/**
+	 * Set HTTP adapter. Use one of API::HTTP_* constants.
+	 *
+	 * @public
+	 * @param string $httpAdapter HTTP adapter
+	 * @throw ApiException on invalid HTTP adapter
+	 */
 	public function setHttpAdapter($httpAdapter) {
 
 		$validHttpAdapters = array(
@@ -435,15 +620,24 @@ class Api {
 		$this->httpAdapter = $httpAdapter;
 	} // setHttpAdapter()
 
+	/**
+	 * Set password for database connection.
+	 *
+	 * @public
+	 * @param string $password Database connection password
+	 */
 	public function setPassword($password) {
-/*
-		if (!empty($password) && (!is_string($password) || strlen($password) < 1)) {
-			throw new Exceptions\ApiException("Passoword '{$password}' is invalid.", 1014);
-		} // if
- */
+
 		$this->password = $password;
 	} // setPassword()
 
+	/**
+	 * Set port number for database connection.
+	 *
+	 * @public
+	 * @param integer $port Port number
+	 * @throw ApiException on invalid database port
+	 */
 	public function setPort($port) {
 
 		if (!is_numeric($port) || $port < 1 || $port > 65535) {
@@ -453,6 +647,13 @@ class Api {
 		$this->port = $port;
 	} // setPort()
 
+	/**
+	 * Set schema for database connection.
+	 *
+	 * @public
+	 * @param string $schema Schema for database connection
+	 * @throw ApiException on invalid schema
+	 */
 	public function setSchema($schema) {
 
 		$validSchemas = array(
@@ -467,6 +668,13 @@ class Api {
 		$this->schema = $schema;
 	} // setSchema()
 
+	/**
+	 * Set SSL certificate file for database connection.
+	 *
+	 * @public
+	 * @param string $sslCertificate SSL certificate file path
+	 * @throw ApiException on invalid SSL certificate file path
+	 */
 	public function setSslCertificate($sslCertificate) {
 
 		if (!is_string($sslCertificate) || strlen($sslCertificate) < 1) {
@@ -476,11 +684,24 @@ class Api {
 		$this->sslCertificate = $sslCertificate;
 	} // setSslCertificate()
 
+	/**
+	 * Set use cache flag.
+	 *
+	 * @public
+	 * @param bool $useCache Use cache flag
+	 */
 	public function setUseCache($useCache = TRUE) {
 
 		$this->useCache = (bool) $useCache;
 	} // setUseCache
 
+	/**
+	 * Set database user name.
+	 *
+	 * @public
+	 * @param string $user Database user name
+	 * @throw ApiException on invalid user name
+	 */
 	public function setUser($user) {
 
 		if (!empty($user) && (!is_string($user) || strlen($user) < 1)) {
@@ -490,11 +711,28 @@ class Api {
 		$this->user = $user;
 	} // setUser()
 
+	/**
+	 * Set use SSL flag.
+	 *
+	 * @public
+	 * @param bool $useSsl Use SSL flag
+	 */
 	public function setUseSsl($useSsl) {
 
 		$this->useSsl = (bool) $useSsl;
 	} // setUseSsl()
 
+	/**
+	 * Perform query to view and return data as array.
+	 * For more information see http://wiki.apache.org/couchdb/HTTP_view_API
+	 *
+	 * @public
+	 * @param string $name View name
+	 * @param string|array $keys Key or array of keys of document to retrieve
+	 * @param array $params Other parameters
+	 * @throw ApiException on view query preparation or execution error
+	 * @return array Array with data
+	 */
 	public function view($name, $keys = NULL, $params = array()) {
 
 		if (!is_string($name) || strlen($name) < 1) {
@@ -614,6 +852,13 @@ class Api {
 		return $response->body;
 	} // view()
 
+	/**
+	 * Check if response is valid.
+	 *
+	 * @protected
+	 * @param StdClass $response Response to check
+	 * @throw ApiException on invalid response
+	 */
 	protected function checkResponse(\StdClass $response) {
 
 		if ($response->headers->_HTTP->status != 200) {
@@ -625,6 +870,12 @@ class Api {
 		} // if
 	} // checkResponse
 
+	/**
+	 * Add debug information into stack (retrieved by getDebugInfo()).
+	 *
+	 * @protected
+	 * @param string $info Debug information
+	 */
 	protected function addDebugInfo($info) {
 
 		if ($this->debug === TRUE) {
@@ -632,6 +883,14 @@ class Api {
 		} // if
 	} // addDebugInfo()
 
+	/**
+	 * Returns apropriate document type object from given data.
+	 *
+	 * @protected
+	 * @param StdClass $data Document data
+	 * @throw ApiException on invalid data
+	 * @return object Object with apropriate document type
+	 */
 	protected function documentFactory($data) {
 
 		if (!($data instanceof \StdClass) || empty($data)) {
@@ -701,56 +960,133 @@ class Api {
 		return $document;
 	} // documentFactory()
 
+	/**
+	 * Returns company type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of company data type
+	 */
 	public function createCompany(\StdClass $data = NULL) {
 
 		return new Document\Company($data, $this);
 	} // createCompany()
 
+	/**
+	 * Returns event type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of event data type
+	 */
 	public function createEvent(\StdClass $data = NULL) {
 
 		return new Document\Event($data, $this);
 	} // createEvent()
 
+	/**
+	 * Returns file type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of file data type
+	 */
 	public function createFile(\StdClass $data = NULL) {
 
 		return new Document\File($data, $this);
 	} // createFile()
 
+	/**
+	 * Returns link type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of link data type
+	 */
 	public function createLink(\StdClass $data = NULL) {
 
 		return new Document\Link($data, $this);
 	} // createLink()
 
+	/**
+	 * Returns note type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of note data type
+	 */
 	public function createNote(\StdClass $data = NULL) {
 
 		return new Document\Note($data, $this);
 	} // createNote()
 
+	/**
+	 * Returns person type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of person data type
+	 */
 	public function createPerson(\StdClass $data = NULL) {
 
 		return new Document\Person($data, $this);
 	} // createPerson()
 
+	/**
+	 * Returns project type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of project data type
+	 */
 	public function createProject(\StdClass $data = NULL) {
 
 		return new Document\Project($data, $this);
 	} // createProject()
 
+	/**
+	 * Returns task type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of task data type
+	 */
 	public function createTask(\StdClass $data = NULL) {
 
 		return new Document\Task($data, $this);
 	} // createTask()
 
+	/**
+	 * Returns timesheet type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of timesheet data type
+	 */
 	public function createTimesheet(\StdClass $data = NULL) {
 
 		return new Document\Timesheet($data, $this);
 	} // createTimesheet()
 
+	/**
+	 * Returns zone type object from document.
+	 *
+	 * @public
+	 * @param StdClass $data Document data
+	 * @return object Object of zone data type
+	 */
 	public function createZone(\StdClass $data = NULL) {
 
 		return new Document\Zone($data, $this);
 	} // createZone()
 
+	/**
+	 * Return project id by its identifier (either project id or hash).
+	 *
+	 * @public
+	 * @param string $identifier Project identifier (project id or hash)
+	 * @return string Project id
+	 */
 	public function resolveProjectId($identifier) {
 
 		try {
@@ -769,6 +1105,14 @@ class Api {
 		} // try
 	} // resolveProject()
 
+	/**
+	 * Returns project id by its hash
+	 *
+	 * @public
+	 * @param string $hash Project hash
+	 * @throw ApiException on invalid hash or nonexisting project
+	 * @return string Project id
+	 */
 	public function getProjectIdByHash($hash) {
 
 		if (!is_string($hash) || strlen($hash) === 0) {
@@ -783,11 +1127,25 @@ class Api {
 		return $result->rows[0]->value;
 	} // getProjectIdByHash()
 
+	/**
+	 * Returns project by it hash.
+	 *
+	 * @public
+	 * @param string $hash Project hash
+	 * @return object Project object
+	 */
 	public function getProjectByHash($hash) {
 
 		return $this->get($this->getProjectIdByHash($hash));
 	} // getProjectByHash()
 
+	/**
+	 * Returns project hash from its id.
+	 *
+	 * @public
+	 * @param string $id Project id
+	 * @return string Project hash
+	 */
 	public function getHashByProjectId($id) {
 
 		if (!is_string($id) || strlen($id) === 0) {

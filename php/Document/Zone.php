@@ -9,6 +9,9 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Zone document class.
+ */
 class Zone extends Document {
 
 

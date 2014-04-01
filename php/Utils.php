@@ -2,10 +2,19 @@
 
 namespace Hobrasoft\Deko;
 
+/**
+ * Implementation of supporting methods.
+ */
 class Utils {
 
 	/**
-	 * http://www.php.net/manual/en/function.mb-split.php#99851
+	 * Splits multibyte encoded strings into array of characters.
+	 * See more at http://www.php.net/manual/en/function.mb-split.php#99851
+	 *
+	 * @public
+	 * @param string $string String to split
+	 * @param integer $length Length of string part to be splited
+	 * @return array Array of characters
 	 */
 	public static function mb_str_split($string, $length = 1) {
 
@@ -28,7 +37,12 @@ class Utils {
 	} // mb_str_split()
 
 	/**
-	 * http://eqcode.com/wiki/CharCodeAt
+	 * Returns UTF-8 character ordinary code
+	 * See more at http://eqcode.com/wiki/CharCodeAt
+	 *
+	 * @public
+	 * @param string $char Character to get code of
+	 * @return mixed Integer value of character, or FALSE on fail
 	 */
 	public static function utf8_ord($char) {
 
@@ -70,8 +84,12 @@ class Utils {
 	} // utf8_ord()
 
 	/**
-	 * DekoHash uses SDBM hash algorithm with modification to ensure
-	 * positive values and convert them into 36based alphabet with uppercase output.
+	 * DekoHash uses SDBM hash algorithm with modification to ensure positive
+	 * values and convert them into 36based alphabet with uppercase output.
+	 *
+	 * @public
+	 * @param string $string String to calculate hash from
+	 * @return string String representing hash of input
 	 */
 	public static function dekoHash($string) {
 
@@ -81,7 +99,12 @@ class Utils {
 	} // dekoHash()
 
 	/**
+	 * This simulates 32bit integer overflow on 64bit systems.
 	 * http://stackoverflow.com/questions/8804875/php-internal-hashcode-function
+	 * 
+	 * @protected
+	 * @param integer $value Integer number value
+	 * @return integer Overflowed integer value
 	 */
 	protected static function overflow32($value) {
 
@@ -101,6 +124,10 @@ class Utils {
 	/**
 	 * PHP implementation of SDBM hash algorithm described at
 	 * http://www.cse.yorku.ca/~oz/hash.html
+	 *
+	 * @protected
+	 * @param string $string String to calculate hash from
+	 * @return string String representing hash of input
 	 */
 	protected static function sdbm($string) {
 

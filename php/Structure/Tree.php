@@ -7,7 +7,9 @@
  */
 namespace Hobrasoft\Deko\Structure;
 
+/**
+ * Tree class. Not implemented yet.
+ */
 class Tree {
 
-
-}
+} // Tree

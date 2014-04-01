@@ -9,22 +9,19 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Company document class.
+ */
 class Company extends Document {
 
-	public $events;
-
-	public $eventsLinks;
-
-	public $notes;
-
-	public $notesLinks;
-
-	public $persons;
-
-	public $personsLinks;
-
-	public $projects;
-
-	public $projectsLinks;
+	public
+		$events,
+		$eventsLinks,
+		$notes,
+		$notesLinks,
+		$persons,
+		$personsLinks,
+		$projects,
+		$projectsLinks;
 
 } // Company

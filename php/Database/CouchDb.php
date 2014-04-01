@@ -12,4 +12,3 @@ require_once __DIR__.'/../libs/Sag/src/Sag.php';
 
 class CouchDb extends \Sag {
 } // CouchDb
-

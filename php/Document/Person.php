@@ -9,18 +9,17 @@ namespace Hobrasoft\Deko\Document;
 
 use Hobrasoft\Deko;
 
+/**
+ * Person document class.
+ */
 class Person extends Document {
 
-	public $companies;
-
-	public $events;
-
-	public $notes;
-
-	public $projects;
-
-	public $tasks;
-
-	public $timesheets;
+	public
+		$companies,
+		$events,
+		$notes,
+		$projects,
+		$tasks,
+		$timesheets;
 
 } // Person

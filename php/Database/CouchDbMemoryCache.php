@@ -14,4 +14,4 @@ use \SagMemoryCache;
 
 class CouchDbMemoryCache extends SagMemoryCache {
 } // CouchDbMemoryCache
-
+:
